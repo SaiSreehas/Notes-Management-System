@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Notes App</title>
+</head>
+<body>
+
+    <h2>Add Note</h2>
+
+    <form id="noteForm">
+        <label>Title:</label><br>
+        <input type="text" id="title" required><br><br>
+
+        <label>Content:</label><br>
+        <textarea id="content" required></textarea><br><br>
+
+        <button type="submit">Add Note</button>
+    </form>
+
+    <h2>All Notes</h2>
+    <ul id="notesList"></ul>
+
+    <script>
+        const apiUrl = "http://localhost:8080/api/notes";
+
+        // Load notes
+        async function loadNotes() {
+            const response = await fetch(apiUrl);
+            const notes = await response.json();
+
+            const list = document.getElementById("notesList");
+            list.innerHTML = "";
+
+            notes.forEach(note => {
+                const li = document.createElement("li");
+                li.innerHTML =
+                    "<b>" + note.title + "</b> - " +
+                    note.content + " (ID: " + note.id + ")";
+                list.appendChild(li);
+            });
+        }
+
+        // Add note
+        document.getElementById("noteForm").addEventListener("submit", async function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById("title").value;
+            const content = document.getElementById("content").value;
+
+            await fetch(apiUrl, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    title: title,
+                    content: content
+                })
+            });
+
+            document.getElementById("noteForm").reset();
+            loadNotes();
+        });
+
+        loadNotes();
+    </script>
+
+</body>
+</html>
